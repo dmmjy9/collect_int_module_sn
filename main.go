@@ -1,6 +1,8 @@
 package main
 
-import "collect_int_module_sn/ssh"
+import (
+	"collect_int_module_sn/ssh"
+)
 
 func main() {
 	//ssh.OpenScpServ()

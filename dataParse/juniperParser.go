@@ -1,72 +1,55 @@
 package dataParse
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
 
-type JuniperInt struct {
-	slot	string
-	subslot	string
-	intf	string
-}
-
 func JuniperParser(queryOut string) []SnInfo {
-	var splitStr string
-	var delUnuse []string
+	eachLineSlice := strings.Split(queryOut, "\n")
+	var snInfoSlice []SnInfo
+	idx := 0
 
-	splitStr = strings.Split(queryOut, "{master}")[0]
-	eachLineSlice := strings.Split(splitStr, "\n")
+	var FPCNow, PICNow, XcvrNow, TypeNow string
+
 	for _, line := range eachLineSlice {
-		if strings.Contains(line, "SFP+") ||
-			strings.Contains(line, "FPC ") ||
-			strings.Contains(line, "PIC ") ||
-			strings.Contains(line, "QSFP-") ||
-			strings.Contains(line, "100GBASE-LR") ||
-			strings.Contains(line, "100G-SR") {
-			delUnuse = append(delUnuse, line)
+		if strings.Contains(line, "FPC") {
+			FPCReg := regexp.MustCompile(`^FPC\s([0-9]+)`)
+			FPCNow = FPCReg.FindStringSubmatch(line)[1]
+		} else if strings.Contains(line, "PIC") {
+			PICReg := regexp.MustCompile(`^\s+PIC\s([0-9]+)`)
+			TypeReg := regexp.MustCompile(`(OTN$|SFPP$|-CGE$)`)
+			PICNow = PICReg.FindStringSubmatch(line)[1]
+			TypeNow = func(reg *regexp.Regexp) string {
+				matchType := reg.FindStringSubmatch(line)[1]
+				if matchType == "OTN" || matchType == "-CGE" {
+					return "et"
+				} else if matchType == "SFPP" {
+					return "xe"
+				}
+				return ""
+			}(TypeReg)
+		} else if strings.Contains(line, "Xcvr") {
+			XcvrReg := regexp.MustCompile(`^\s+Xcvr\s([0-9]+)`)
+			XcvrNow = XcvrReg.FindStringSubmatch(line)[1]
+			idx++
+
+			intName := TypeNow + "-" + FPCNow + "/" + PICNow + "/" + XcvrNow
+			modTypeReg := regexp.MustCompile(`([A-Za-z0-9\+]+\-[A-Za-z0-9\+]+\-[A-Za-z0-9\+]+|[A-Za-z0-9\+]+\-[A-Za-z0-9\+]+\-[A-Za-z0-9\+]+\-[A-Za-z0-9\+]+)`)
+			modType := modTypeReg.FindStringSubmatch(line)[1]
+			modSnReg := regexp.MustCompile(`([A-Za-z0-9]+)\s+(SFP|QSFP|CFP|100GB)`)
+			modSn := modSnReg.FindStringSubmatch(line)[1]
+
+			snInfoSlice = append(snInfoSlice, SnInfo{
+				Id:      idx,
+				IntName: intName,
+				ModType: modType,
+				ModSn:   modSn,
+			})
+		} else {
+			continue
 		}
 	}
 
-	//var juniperIntfSlice []JuniperInt
-	var (
-		juniperFpc		string
-		juniperPic		string
-		juniperXcvr		string
-		juniperXcvrType	string
-		juniperXcvrSn	string
-		juniperPicType	string
-	)
-	var juniperFpcs []string
-	juniperFpcPic := make(map[string]string)
-
-	for _, line := range delUnuse {
-		if !strings.HasPrefix(line, " ") && strings.Contains(line, "FPC") {
-			FPCReg := regexp.MustCompile(`^(FPC\s[0-9]+)\s+`)
-			juniperFpc = FPCReg.FindStringSubmatch(line)[1]
-			juniperFpcs = append(juniperFpcs, juniperFpc)
-			continue
-		}
-		if strings.HasPrefix(line, "    PIC") {
-			PICReg := regexp.MustCompile(`^\s+(PIC\s[0-9]+)\s+.*(OTN|SFPP|CGE)`)
-			juniperPic = PICReg.FindStringSubmatch(line)[1]
-			juniperPicType = PICReg.FindStringSubmatch(line)[2]
-			continue
-			fmt.Println(juniperPic, juniperPicType)
-		}
-		if strings.HasPrefix(line, "      Xcvr") {
-			XcvrReg := regexp.MustCompile(`\s+(Xcvr\s[0-9]+)\s+(REV\s[0-9]+\s+[0-9]+-[0-9]+\s+|NON-JNPR\s+)([A-Z0-9]+)\s+(.*)`)
-			juniperXcvr = XcvrReg.FindStringSubmatch(line)[1]
-			juniperXcvrSn = XcvrReg.FindStringSubmatch(line)[3]
-			juniperXcvrType = XcvrReg.FindStringSubmatch(line)[4]
-			continue
-			fmt.Printf("%s -- %s -- %s\n", juniperXcvr, juniperXcvrType, juniperXcvrSn)
-		}
-	}
-	for _, fpc := range juniperFpcs {
-		juniperFpcPic[fpc] = ""
-	}
-	fmt.Println(juniperFpcPic)
-	return []SnInfo{}
+	return snInfoSlice
 }

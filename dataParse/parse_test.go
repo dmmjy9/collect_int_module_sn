@@ -1,6 +1,7 @@
 package dataParse
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -189,8 +190,8 @@ mujunyao@BJ-DHM-TC-ROUTER-01.BJ> exit
 Connection to 172.29.254.3 closed.
 
 `
-	_ = JuniperParser(outStr)
-	//for _, val := range info {
-	//	fmt.Printf("%d -- %s -- %s -- %s\n", val.Id, val.IntName, val.ModType, val.ModSn)
-	//}
+	info := JuniperParser(outStr)
+	for _, val := range info {
+		fmt.Printf("%d -- %s -- %s -- %s\n", val.Id, val.IntName, val.ModType, val.ModSn)
+	}
 }
