@@ -9,5 +9,15 @@
   "ssh": {
     "username": "",
     "password": ""
+  },
+  "api": {
+    "token": "79d09da0-d7b8-4380-924d-80ff0deb9eb6",
+    "baseUrl": "/api"
+  },
+  "redis": {
+    "host": "",
+    "port": "",
+    "password": "",
+    "db": 0
   }
 }

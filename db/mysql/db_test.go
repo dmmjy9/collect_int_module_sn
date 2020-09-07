@@ -1,4 +1,4 @@
-package db
+package mysql
 
 import (
 	"fmt"
@@ -6,13 +6,13 @@ import (
 )
 
 func TestDB(t *testing.T) {
-	db := MySQLDB {
-		Ipaddr:		"",
-		Port:		8888,
-		Username:	"",
-		Password:	"",
-		Database:	"",
-		Dbw:		nil,
+	db := MySQLDB{
+		Ipaddr:   "",
+		Port:     8888,
+		Username: "",
+		Password: "",
+		Database: "",
+		Dbw:      nil,
 	}
 	err := db.Connect()
 	if err != nil {

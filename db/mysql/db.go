@@ -1,26 +1,27 @@
-package db
+package mysql
 
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type MySQLDB struct {
-	Ipaddr		string
-	Port		int
-	Username	string
-	Password	string
-	Database	string
-	Dbw			*sql.DB
+	Ipaddr   string
+	Port     int
+	Username string
+	Password string
+	Database string
+	Dbw      *sql.DB
 }
 
 type QueryResult struct {
-	Ipaddr		string	`json:"ipaddr"`
-	Hostname	string	`json:"hostname"`
-	Vendor		string	`json:"vendor"`
-	Module		string  `json:"pid"`
+	Ipaddr   string `json:"ipaddr"`
+	Hostname string `json:"hostname"`
+	Vendor   string `json:"vendor"`
+	Module   string `json:"pid"`
 }
 
 func (d *MySQLDB) Connect() error {

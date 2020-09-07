@@ -36,7 +36,7 @@ func transManuParser(transManu string, interfaces []string) map[string]string {
 	transManuMap := make(map[string]string)
 
 	for _, intf := range interfaces {
-		modSnReg := regexp.MustCompile(intf+`.*\n.*?:\s(.*?)\n`)
+		modSnReg := regexp.MustCompile(intf + `.*\n.*?:\s(.*?)\n`)
 		modSn := modSnReg.FindStringSubmatch(transManu)
 		if len(modSn) != 0 {
 			transManuMap[intf] = modSn[1]
@@ -53,7 +53,7 @@ func H3CParser(queryOut string) []SnInfo {
 	transInfo := strings.Split(allInfo, "display transceiver manuinfo interface")[0]
 	transManu := strings.Split(allInfo, "display transceiver manuinfo interface")[1]
 	transInfoMap := transInfoParser(transInfo)
-	for intf, _ := range transInfoMap {
+	for intf := range transInfoMap {
 		intfSlice = append(intfSlice, intf)
 	}
 	transManuMap := transManuParser(transManu, intfSlice)
@@ -61,10 +61,10 @@ func H3CParser(queryOut string) []SnInfo {
 	id := 0
 	for intf, info := range transInfoMap {
 		snInfoSlice = append(snInfoSlice, SnInfo{
-			Id: id,
+			Id:      id,
 			IntName: intf,
 			ModType: info,
-			ModSn: transManuMap[intf],
+			ModSn:   transManuMap[intf],
 		})
 		id++
 	}

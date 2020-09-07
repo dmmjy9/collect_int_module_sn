@@ -4,3 +4,6 @@
 .DS_Store?
 
 ip.list
+
+*.tmp
+*.rdb
